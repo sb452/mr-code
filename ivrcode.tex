@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article} % ??\%
+\documentclass[a4paper,12pt]{article} % ??\% 
 \usepackage{color}
 \usepackage{epsfig}
 \usepackage{amsfonts}
@@ -12,6 +12,19 @@
 \usepackage{url}
 \usepackage[square, authoryear]{natbib}
 \usepackage{listings}
+\usepackage[pagebackref]{hyperref}
+    \renewcommand*{\backreflastsep}{, }
+    \renewcommand*{\backreftwosep}{, }
+    \renewcommand*{\backref}[1]{}
+    \renewcommand*{\backrefalt}[4]{%
+      \ifcase #1 %
+    No citations.% use \relax if you do not want the "No citations" message
+      \or
+    (page #2).%
+      \else
+    (pages #2).%
+      \fi%
+    }
 \lstset{
 basicstyle=\small\ttfamily,
 columns=flexible,
@@ -71,11 +84,11 @@ byse # standard errors of genetic associations with outcome
 
 \clearpage
 
-\section{Standard Mendelian randomization analysis with individual-level data}
+\section{Mendelian randomization analysis with individual-level data}
 This section on standard Mendelian randomization methods with individual-level data in a single dataset is based on \cite{burgess2015review}, which in turn is based on Chapter 4 of \cite{burgess2015book}. We consider in turn the ratio of coefficients method, two-stage methods, likelihood-based methods, and semi-parametric methods.
 
 \subsection{Ratio of coefficients (Wald) method -- single instrument}
-The ratio of coefficients method, or the Wald method is the simplest way of estimating the causal effect of the risk factor on the outcome (original paper). The ratio method uses a single instrumental variable (IV), which can be a single SNP or an allele score (see \cite{burgess2014score} for background on allele scores).
+The ratio of coefficients method, or the Wald method is the simplest way of estimating the causal effect of the risk factor on the outcome (original paper). The ratio method uses a single instrumental variable (IV), which can be a single SNP or an allele score (see \cite{burgess2012score} for background on allele scores).
 
 \begin{lstlisting}
 ## A. Ratio estimate (continuous outcome)
@@ -148,9 +161,31 @@ Genetic associations with the risk factor are estimated in control participants 
 \clearpage
 
 \subsection{Two-stage least squares method}
+\begin{lstlisting}
 ## A. Continuous outcome
 library(sem)
-se_tsls = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
+beta_tsls = tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$coef[1]
+se_tsls   = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
+
+library(ivpack)
+ivmodel = ivreg(y~x|g, x=TRUE)
+summary(ivmodel)
+beta_tsls = ivreg(y~x|g, x=TRUE)$coef[2]
+se_tsls   = summary(ivreg(y~x|g, x=TRUE))$coef[2,2]
+\end{lstlisting}
+
+The same point estimate (although not the standard error) can be obtained using sequential regression:
+
+\begin{lstlisting}
+seqreg_tsls = lm(y~lm(x~g)$fitted)
+\end{lstlisting}.
+
+\begin{lstlisting}
+## B. Binary outcome, logistic-linear model (assuming case--control data)
+
+glm(y~lm(x~g)$fitted)
+\end{lstlisting}
+
 
 \clearpage
 

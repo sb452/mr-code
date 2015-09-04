@@ -1,9 +1,89 @@
 \begin{thebibliography}{}
 
+\bibitem[Anderson and Rubin, 1949]{anderson1949}
+Anderson, T. and Rubin, H. 1949.
+\newblock {Estimators of the parameters of a single equation in a complete set
+  of stochastic equations}.
+\newblock {\em Annals of Mathematical Statistics}, 21(1):570--582.
+
 \bibitem[Bowden and Vansteelandt, 2011]{bowden2011}
 Bowden, J. and Vansteelandt, S. 2011.
 \newblock {Mendelian randomisation analysis of case-control data using
   structural mean models}.
 \newblock {\em Statistics in Medicine}, 30(6):678--694.
+
+\bibitem[Buonaccorsi, 2005]{buonaccorsi2005}
+Buonaccorsi, J. 2005.
+\newblock {\em {Encyclopedia of Biostatistics}}, chapter {Fieller's theorem},
+  pages 1951--1952.
+\newblock Wiley.
+
+\bibitem[Burgess and {CHD CRP Genetics Collaboration},
+  2013]{burgess2012noncollapse}
+Burgess, S. and {CHD CRP Genetics Collaboration} 2013.
+\newblock {Identifying the odds ratio estimated by a two-stage instrumental
+  variable analysis with a logistic regression model}.
+\newblock {\em Statistics in Medicine}, 32(27):4726--4747.
+
+\bibitem[Burgess et~al., 2015]{burgess2015review}
+Burgess, S., Small, D.~S., and Thompson, S.~G. 2015.
+\newblock {A review of instrumental variable estimators for Mendelian
+  randomization}.
+\newblock {\em Statistical Methods in Medical Research}.
+
+\bibitem[Burgess and Thompson, 2013]{burgess2012score}
+Burgess, S. and Thompson, S. 2013.
+\newblock {Use of allele scores as instrumental variables for Mendelian
+  randomization}.
+\newblock {\em International Journal of Epidemiology}, 42(4):1134--1144.
+
+\bibitem[Burgess and Thompson, 2015]{burgess2015book}
+Burgess, S. and Thompson, S.~G. 2015.
+\newblock {\em {Mendelian randomization: methods for using genetic variants in
+  causal estimation}}.
+\newblock Chapman \& Hall.
+
+\bibitem[Didelez and Sheehan, 2007]{didelez2007}
+Didelez, V. and Sheehan, N. 2007.
+\newblock {Mendelian randomization as an instrumental variable approach to
+  causal inference}.
+\newblock {\em Statistical Methods in Medical Research}, 16(4):309--330.
+
+\bibitem[Fieller, 1954]{fieller1954}
+Fieller, E. 1954.
+\newblock {Some problems in interval estimation}.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 16(2):175--185.
+
+\bibitem[Greenland, 2000]{greenland2000}
+Greenland, S. 2000.
+\newblock {An introduction to instrumental variables for epidemiologists}.
+\newblock {\em International Journal of Epidemiology}, 29(4):722--729.
+
+\bibitem[Greenland et~al., 1999]{greenland1999}
+Greenland, S., Robins, J., and Pearl, J. 1999.
+\newblock {Confounding and collapsibility in causal inference}.
+\newblock {\em Statistical Science}, 14(1):29--46.
+
+\bibitem[Lawlor et~al., 2008]{lawlor2007}
+Lawlor, D., Harbord, R., Sterne, J., Timpson, N., and Davey~Smith, G. 2008.
+\newblock {Mendelian randomization: using genes as instruments for making
+  causal inferences in epidemiology}.
+\newblock {\em Statistics in Medicine}, 27(8):1133--1163.
+
+\bibitem[Martens et~al., 2006]{martens2006}
+Martens, E., Pestman, W., de~Boer, A., Belitser, S., and Klungel, O. 2006.
+\newblock {Instrumental variables: application and limitations}.
+\newblock {\em Epidemiology}, 17(3):260--267.
+
+\bibitem[Mikusheva, 2010]{mikusheva2010}
+Mikusheva, A. 2010.
+\newblock {Robust confidence sets in the presence of weak instruments}.
+\newblock {\em Journal of Econometrics}, 157(2):236--247.
+
+\bibitem[Vansteelandt et~al., 2011]{vansteelandt2010}
+Vansteelandt, S., Bowden, J., Babanezhad, M., and Goetghebeur, E. 2011.
+\newblock {On instrumental variables estimation of causal odds ratios}.
+\newblock {\em Statistical Science}, 26(3):403--422.
 
 \end{thebibliography}
