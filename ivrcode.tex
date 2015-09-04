@@ -36,9 +36,14 @@ language=R
 \title{Software code in R for performing instrumental variable analyses for Mendelian randomization investigations}
 \author{maintained by Stephen Burgess}
 \maketitle
-This is a non-traditional publication to provide software code for the Mendelian randomization community in a single document. It will be updated when necessary as new methods are developed. Hopefully, this will become a collaborative resource than can be authored by the community rather than a single-author manuscript. However, I (Stephen Burgess, sb452@cam.ac.uk) retain the prerogative to exert editorial control.
+This is a non-traditional publication to provide software code for the Mendelian randomization community in a single document. It will be updated when necessary as new methods are developed. Hopefully, this will become a collaborative resource than can be authored by the community rather than a single-author manuscript. However, Stephen Burgess retains the prerogative to exert editorial control.
 
-Currently, it only contains R code. If someone wants to write Stata code or code for any other software package, this can also be included.
+Currently, it only contains R code. If someone wants to write Stata code or code for any other software package, this could be included in a separate document.
+
+Contributors: 
+\begin{itemize}
+\item Stephen Burgess (sb452@medschl.cam.ac.uk)
+\end{itemize}
 
 \clearpage
 
@@ -67,7 +72,11 @@ byse # standard errors of genetic associations with outcome
 \clearpage
 
 \section{Standard Mendelian randomization analysis with individual-level data}
-\subsection{Ratio (Wald) method -- single instrument (SNP or score)}
+This section on standard Mendelian randomization methods with individual-level data in a single dataset is based on \cite{burgess2015review}, which in turn is based on Chapter 4 of \cite{burgess2015book}. We consider in turn the ratio of coefficients method, two-stage methods, likelihood-based methods, and semi-parametric methods.
+
+\subsection{Ratio of coefficients (Wald) method -- single instrument}
+The ratio of coefficients method, or the Wald method is the simplest way of estimating the causal effect of the risk factor on the outcome (original paper). The ratio method uses a single instrumental variable (IV), which can be a single SNP or an allele score (see \cite{burgess2014score} for background on allele scores).
+
 \begin{lstlisting}
 ## A. Ratio estimate (continuous outcome)
 
@@ -76,18 +85,18 @@ bxse = summary(lm(x~g))$coef[2,2]
 by   = lm(y~g)$coef[2]
 byse = summary(lm(y~g))$coef[2,2]
 
-beta_ratio = lm(y~g)$coef[2]/lm(x~g)$coef[2]
 beta_ratio = by/bx
+\end{lstlisting}
 
+See \cite{greenland2000} or \cite{martens2006} for an introduction to instrumental variable methods and causal estimation, or \cite{lawlor2007} for a specific Mendelian randomization perspective.
 
+\begin{lstlisting}
 ## B. Asymptotic standard error (poor with weak instruments)
 
 # 1. Delta method approximation (summarized data)
 
-se_ratio_approx = summary(lm(y~g))$coef[2,2]/lm(x~g)$coef[2]
 se_ratio_approx = byse/bx
          # first order approximation
-se_ratio_approx = sqrt(summary(lm(y~g))$coef[2,2]^2/lm(x~g)$coef[2]^2 + lm(y~g)$coef[2]^2*summary(lm(x~g))$coef[2,2]^2/lm(x~g)$coef[2]^4 - 2*theta*lm(y~g)$coef[2]/lm(x~g)$coef[2]^3)
 se_ratio_approx = sqrt(byse^2/bx^2 + by^2*bxse^2/bx^4 - 2*theta*by/bx^3)
          # second order approximation
          # theta is correlation between numerator
@@ -121,8 +130,11 @@ library(ivpack)
 ivmodel = ivreg(y~x|g, x=TRUE)
 anderson.rubin.ci(ivmodel)
          # As with Fieller's theorem, interval may be a closed interval, the union of two open intervals, or undefined
-         
-         
+\end{lstlisting}
+
+A reference for Fieller's theorem is \cite{buonaccorsi2005} (original reference is \cite{fieller1954}, a web-based tool is available at \url{spark.rstudio.com/sb452/fieller}. A reference for the Anderson--Rubin method is \cite{mikusheva2010} (original reference is \cite{anderson1949}).
+
+\begin{lstlisting}
 ## D. Binary outcome, logistic-linear model (assuming case--control data)
 
 bx   = lm(x[y==0]~g[y==0])$coef[2]
@@ -131,12 +143,22 @@ by   = glm(y~g, family=binomial)$coef[2]
 byse = summary(lm(y~g))$coef[2,2]
 \end{lstlisting}
 
-Genetic associations with the risk factor are estimated in control participants only (see \cite{bowden2011}).
+Genetic associations with the risk factor are estimated in control participants only (see \cite{didelez2007}, \cite{bowden2011}). This is for three main reasons: to avoid reverse causation, to avoid biases due to outcome-dependent sampling, and because the controls are a more representative sample of the population as a whole. There are some technical issues relating to the ratio estimate with a binary outcome and a logistic regression model due to the non-collapsibility of odds ratios \cite{greenland1999}, but it is a consistent estimator under the null \cite{burgess2012noncollapse, vansteelandt2010}.
+
 \clearpage
 
 \subsection{Two-stage least squares method}
+## A. Continuous outcome
+library(sem)
+se_tsls = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
 
 \clearpage
+
+
+
+
+
+
 \makeatletter
 \renewcommand\@biblabel[1]{}
 \makeatother
