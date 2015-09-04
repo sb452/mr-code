@@ -1,0 +1,72 @@
+\documentclass[a4paper,12pt]{article} % ??\%
+\usepackage{color}
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb, amsbsy}
+\usepackage{mathtools}
+\usepackage{chngpage}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{url}
+\DeclareMathOperator{\se}{se}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\cor}{cor}
+\DeclareMathOperator{\Cor}{Cor}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\slfrac}[2]{\left.#1\middle/#2\right.}
+\addtolength{\hoffset}{-0.8cm}
+\addtolength{\textwidth}{1.6cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}
+\begin{document}
+\title{Software code in R for performing instrumental variable analyses for Mendelian randomization investigations}
+\author{maintained by Stephen Burgess}
+\maketitle
+This is a non-traditional publication to provide software code for the Mendelian randomization community in a single document. It will be updated when necessary as new methods are developed. Hopefully, this will become a collaborative resource than can be authored by the community rather than a single-author manuscript. However, I (Stephen Burgess) retain the prerogative to exert editorial control.
+
+Currently, it only contains R code. If someone wants to write Stata code or code for any other software package, this can also be included.
+
+\clearpage
+
+\tableofcontents % set depth
+
+\clearpage
+
+\section{Introduction and notation}
+\begin{verbatim}
+### Individual-level data
+g # genetic variant(s), matrix dimension N x K
+x # risk factor/exposure, vector length N
+y # outcome, vector length N
+
+###### Summary data
+bx   # genetic associations with exposure, vector length K
+by   # genetic associations with outcome, vector length K
+bxse # standard errors of genetic associations with exposure
+byse # standard errors of genetic associations with outcome
+\end{verbatim}
+
+\clearpage
+
+\section{Continuous outcome, individual-level data}
+\subsection{Ratio (Wald) method}
+\begin{verbatim}
+beta_ratio = lm(y~g)$coef[2]/lm(x~g)$coef[2]
+
+se_ratio_approx = summary(lm(y~g))$coef[2,2]/lm(x~g)$coef[2]
+         # first order approximation
+se_ratio_approx = sqrt(summary(lm(y~g))$coef[2,2]/lm(x~g)$coef[2]+
+         # second order approximation
+         # theta is correlation between numerator
+         #   and denominator in ratio estimate
+ci_lower_fieller =
+ci_upper_fieller =
+ci_andersonrubin =
+         # or use two-stage least squares for standard error
+\end{verbatim}
+
+
+\end{document}
