@@ -10,6 +10,7 @@
 \usepackage{multirow}
 \usepackage{setspace}
 \usepackage{url}
+\usepackage[square, authoryear]{natbib}
 \usepackage{listings}
 \lstset{
 basicstyle=\small\ttfamily,
@@ -65,20 +66,21 @@ byse # standard errors of genetic associations with outcome
 
 \clearpage
 
-\section{Continuous outcome, individual-level data}
+\section{Standard Mendelian randomization analysis with individual-level data}
 \subsection{Ratio (Wald) method -- single instrument (SNP or score)}
 \begin{lstlisting}
+## A. Ratio estimate (continuous outcome)
+
 bx   = lm(x~g)$coef[2]
 bxse = summary(lm(x~g))$coef[2,2]
 by   = lm(y~g)$coef[2]
 byse = summary(lm(y~g))$coef[2,2]
 
-# A. Ratio estimate
-
 beta_ratio = lm(y~g)$coef[2]/lm(x~g)$coef[2]
 beta_ratio = by/bx
 
-# B. Asymptotic standard error (poor with weak instruments)
+
+## B. Asymptotic standard error (poor with weak instruments)
 
 # 1. Delta method approximation (summarized data)
 
@@ -97,7 +99,7 @@ library(sem)
 se_tsls = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
 
 
-# C. Valid confidence intervals with weak instruments
+## C. Valid confidence intervals with weak instruments
 
 # 1. Fieller's theorem
   f0 = by^2 - qt(0.975, N)^2 * byse^2
@@ -119,10 +121,26 @@ library(ivpack)
 ivmodel = ivreg(y~x|g, x=TRUE)
 anderson.rubin.ci(ivmodel)
          # As with Fieller's theorem, interval may be a closed interval, the union of two open intervals, or undefined
+         
+         
+## D. Binary outcome, logistic-linear model (assuming case--control data)
+
+bx   = lm(x[y==0]~g[y==0])$coef[2]
+bxse = summary(lm(x[y==0]~g[y==0]))$coef[2,2]
+by   = glm(y~g, family=binomial)$coef[2]
+byse = summary(lm(y~g))$coef[2,2]
 \end{lstlisting}
 
+Genetic associations with the risk factor are estimated in control participants only (see \cite{bowden2011}).
 \clearpage
 
 \subsection{Two-stage least squares method}
+
+\clearpage
+\makeatletter
+\renewcommand\@biblabel[1]{}
+\makeatother
+\bibliographystyle{apalike}
+\bibliography{masterrefcode}
 
 \end{document}
