@@ -36,6 +36,12 @@ Burgess, S., Butterworth, A., and Thompson, S. 2013.
   using summarized data}.
 \newblock {\em Genetic Epidemiology}, 37(7):658--665.
 
+\bibitem[Burgess et~al., 2015a]{burgess2015beyond}
+Burgess, S., Butterworth, A.~S., and Thompson, J.~R. 2015a.
+\newblock {Beyond Mendelian randomization: how to interpret evidence of shared
+  genetic predictors}.
+\newblock {\em Journal of Clinical Epidemiology}.
+
 \bibitem[Burgess and {CHD CRP Genetics Collaboration},
   2013]{burgess2012noncollapse}
 Burgess, S. and {CHD CRP Genetics Collaboration} 2013.
@@ -49,28 +55,28 @@ Burgess, S., Davies, N., Thompson, S., and {EPIC-InterAct Consortium} 2014.
   relationship}.
 \newblock {\em Epidemiology}, 25(6):877--885.
 
-\bibitem[Burgess et~al., 2015a]{burgess2015scoretj}
-Burgess, S., Dudbridge, F., and Thompson, S. 2015a.
+\bibitem[Burgess et~al., 2015b]{burgess2015scoretj}
+Burgess, S., Dudbridge, F., and Thompson, S. 2015b.
 \newblock {Combining information on multiple instrumental variables in
   Mendelian randomization: comparison of allele score and summarized data
   methods}.
 \newblock Available at https://www.academia.edu/15479109/Combining.
 
-\bibitem[Burgess et~al., 2015b]{burgess2014pleioajeappendix}
-Burgess, S., Dudbridge, F., and Thompson, S.~G. 2015b.
+\bibitem[Burgess et~al., 2015c]{burgess2014pleioajeappendix}
+Burgess, S., Dudbridge, F., and Thompson, S.~G. 2015c.
 \newblock {Re: ``Multivariable Mendelian randomization: the use of pleiotropic
   genetic variants to estimate causal effects''}.
 \newblock {\em American Journal of Epidemiology}, 181(4):290--291.
 
-\bibitem[Burgess et~al., 2015c]{burgess2014twosample}
+\bibitem[Burgess et~al., 2015d]{burgess2014twosample}
 Burgess, S., Scott, R., Timpson, N., Davey~Smith, G., Thompson, S., and
-  {EPIC-InterAct Consortium} 2015c.
+  {EPIC-InterAct Consortium} 2015d.
 \newblock {Using published data in Mendelian randomization: a blueprint for
   efficient identification of causal risk factors}.
 \newblock {\em European Journal of Epidemiology}, 30(7):543--552.
 
-\bibitem[Burgess et~al., 2015d]{burgess2015review}
-Burgess, S., Small, D.~S., and Thompson, S.~G. 2015d.
+\bibitem[Burgess et~al., 2015e]{burgess2015review}
+Burgess, S., Small, D.~S., and Thompson, S.~G. 2015e.
 \newblock {A review of instrumental variable estimators for Mendelian
   randomization}.
 \newblock {\em Statistical Methods in Medical Research}.

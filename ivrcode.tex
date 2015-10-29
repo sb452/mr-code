@@ -87,7 +87,7 @@ bxse # standard errors of genetic associations with exposure
 byse # standard errors of genetic associations with outcome
 \end{lstlisting}
 
-This document describes methods for causal estimation using Mendelian randomization. Little attention is paid as to the assumptions for Mendelian randomization, or the interpretation of estimates from these methods. See \cite{hernan2006}, \cite{glymour2012} and \cite{vanderweele2014} for some critical comments.
+This document describes methods for causal estimation using Mendelian randomization. Little attention is paid as to the assumptions for Mendelian randomization, or the interpretation of estimates from these methods. See \cite{hernan2006}, \cite{glymour2012}, \cite{vanderweele2014} and \cite{burgess2015beyond} for some critical comments.
 
 \clearpage
 
@@ -206,8 +206,8 @@ se_tsls   = summary(ivreg(y~x|g, x=TRUE))$coef[2,2]
 The same point estimate (although not the standard error) can be obtained using sequential regression:
 
 \begin{lstlisting}
-beta_seqreg_tsls = lm(y~lm(x~g)$fitted)
-\end{lstlisting}.
+beta_seqreg_tsls = lm(y~lm(x~g)$fitted)$coef[2]
+\end{lstlisting}
 
 \begin{lstlisting}
 ## B. Binary outcome, logistic-linear model (assuming case--control data)
@@ -236,7 +236,11 @@ An alternative approach is two-stage residual inclusion, in which the fitted val
 \clearpage
 
 \subsection{Likelihood-based methods}
-Not aware of a generic implementation of likelihood-based methods (such as limited information maximum likelihood, LIML) in R. The LIML approach can be implemented in Stata: \texttt{ivreg2 y (x = g1), liml} for one variant; \texttt{ivreg2 y (x = g1 g2 g3), liml} for multiple variants.
+Not aware of a generic implementation of likelihood-based methods (such as limited information maximum likelihood, LIML) in R. The LIML approach can be implemented in Stata:
+\begin{lstlisting}
+ivreg2 y (x = g1), liml         * for one variant
+ivreg2 y (x = g1 g2 g3), liml   * for multiple variants.
+\end{lstlisting}
 
 \clearpage
 
@@ -377,14 +381,14 @@ The SMM specification is due to \cite{vansteelandt2003}.
 \section{Mendelian randomization analysis with summarized data}
 This section on Mendelian randomization methods with summarized data covers the inverse-variance weighted method that is equivalent asymptotically to the two-stage least squares method, as well as robust methods such as Egger regression, median-based estimation (including simple median and weighted median methods), a test for heterogeneity of the causal estimates from different genetic variants, and some code for the presentation of summarized data.
 
-We assume that data are available on genetic associations with the risk factor and with the outcome in the form of beta-coefficients and standard errors.
+We assume that data are available on genetic associations with the risk factor and with the outcome in the form of beta-coefficients (\textt{bx} and \textt{by}) and standard errors (\textt{bxse} and \textt{byse}).
 
 A one-sample Mendelian randomization setting is one in which data on genetic associations with the risk factor and with the outcome are estimated in the same individuals. A two-sample Mendelian randomization setting is one in which data on genetic associations with the risk factor and with the outcome are estimated in different samples \citep{pierce2013}. Although two-sample investigations are not limited to those using summarized data, the use of summarized (particularly published) data means that genetic associations are often taken from separate sources, which may be non-overlapping \citep{burgess2014twosample}.
 
 \clearpage
 
 \subsection{Inverse-variance weighted method}
-The inverse-variance weighted method can be motivated in several ways \citep{burgess2013genepi}. 1) It is a weighted mean of the causal estimates from multiple genetic variants, where the weights are the inverse-variance weights also used in meta-analysis. 2) It is asymptotically equivalent to a two-stage least squares analysis (and so can be motivated using an allele score). 3) It is the coefficient from a weighted linear regression of the gene--outcome coefficients on the gene-risk factor coefficients (intercept is constrained to equal zero).
+The inverse-variance weighted method can be motivated in several ways \citep{burgess2013genepi}. 1) It is a weighted mean of the ratio causal estimates from multiple genetic variants, where the weights are the inverse-variance weights also used in meta-analysis. 2) It is asymptotically equivalent to a two-stage least squares analysis (and so can be motivated using an allele score). 3) It is the coefficient from a weighted linear regression of the gene--outcome coefficients on the gene-risk factor coefficients (intercept is constrained to equal zero).
 
 We initially present the inverse-variance weighted estimate and standard error as it was initially proposed (using a fixed-effect assumption -- that all the genetic variants identify the same causal effect, and using a simple formulation of the variances used as weights) \citepalias{ehret2011bk}. We then give random-effects estimates, as well as a correction to the variances that should be used in a one-sample setting, particularly when the instruments are weak. We initially assume that genetic variants are uncorrelated (not in linkage disequilibrium).
 
@@ -407,6 +411,9 @@ betafirst.fixed = lm(by~bx-1, weights=byse^-2)$coef[1]
 
 \begin{lstlisting}
 ## B. Genetic variants uncorrelated, heterogeneity -- random-effects model
+#     (the use of a random-effects model is preferred,
+#       particularly if there is any chance of heterogeneity
+#       in the estimates obtained using different genetic variants)
 
 # 1. Additive random-effects model
 betafirst.addran = metagen(by/bx, abs(byse/bx))$TE.random
@@ -454,7 +461,7 @@ betasecond.theta.mulran = reg.second.theta$coef[1]
   sesecond.theta.mulran = reg.second.theta$coef[1,2]/min(reg.second.theta$sigma,1)
 \end{lstlisting}
 
-When the genetic associations with the risk factor and with the outcome are estimated in non-overlapping datasets (a two-sample setting), the estimates in section B give reasonable coverage rates and those in section C give overcoverage (confidence intervals are too wide) [unpublished]. However, when the datasets overlap (as is often the case in practice for major genetic consortia), the coverage of estimates in section B is below nominal levels and Type 1 error rates are too frequent. This is particularly true when the genetic variants are weak. Estimates in section C give much better coverage properties.
+When the genetic associations with the risk factor and with the outcome are estimated in non-overlapping datasets (a two-sample setting), the estimates in section B give reasonable coverage rates and those in section C give overcoverage (confidence intervals are too wide) [unpublished]. However, when the datasets overlap (as is often the case in practice for major genetic consortia), the coverage of estimates in section B is below nominal levels and Type 1 error rates are too frequent. This is particularly true when the genetic variants are weak. In the one-sample or overlapping sample setting, estimates in section C have much better coverage properties.
 
 The correlation term $\theta$ is the correlation between the genetic associations with the risk factor and the genetic associations with the outcome. This is zero in a two-sample setting, and approximately the same as the correlation between the risk factor and the outcome in a one-sample setting.
 
@@ -466,7 +473,7 @@ betafirst.fixed.correl = solve(t(bx)%*%solve(Omega)%*%bx)*t(bx)%*%solve(Omega)%*
 sefirst.fixed.correl   = sqrt(solve(t(bx)%*%solve(Omega)%*%bx))
 \end{lstlisting}
 
-When genetic variants are correlated, the causal effect can be estimated using generalized weighted linear regression \citep{burgess2015scoretj}. The matrix \texttt{rho} is the matrix of correlations between the genetic variants. This method can give odd results, particularly if the genetic variants are highly correlated.
+When genetic variants are correlated, the causal effect can be estimated using generalized weighted linear regression \citep{burgess2015scoretj}. The matrix \texttt{rho} is the matrix of correlations between the genetic variants. This method can give odd results, particularly if the genetic variants are highly correlated, or the correlations are misspecified.
 
 \clearpage
 
@@ -594,7 +601,7 @@ ivmodel = ivreg(y~cbind(x1,x2)|g, x=TRUE)
 summary(ivmodel)
 \end{lstlisting}
 
-With summarized data, the inverse-variance weighted method can be used, except that instead of a univariate weighted linear regression model, a multivariate weighted linear regression model can be employed \cite{burgess2014pleioajeappendix}.
+With summarized data, the inverse-variance weighted method can be used, except that instead of a univariate weighted linear regression model, a multivariate weighted linear regression model can be employed \citep{burgess2014pleioajeappendix}.
 
 \begin{lstlisting}
 ## B. Summarized data
