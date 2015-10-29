@@ -1,4 +1,14 @@
 \contentsline {section}{\numberline {1}Introduction and notation}{3}{section.1}
 \contentsline {section}{\numberline {2}Mendelian randomization analysis with individual-level data}{4}{section.2}
-\contentsline {subsection}{\numberline {2.1}Ratio of coefficients (Wald) method -- single instrument}{4}{subsection.2.1}
-\contentsline {subsection}{\numberline {2.2}Two-stage least squares method}{6}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.1}Ratio of coefficients (Wald) method -- single instrument}{5}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}Two-stage methods}{8}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}Likelihood-based methods}{10}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Semi-parametric methods}{11}{subsection.2.4}
+\contentsline {section}{\numberline {3}Mendelian randomization analysis with summarized data}{14}{section.3}
+\contentsline {subsection}{\numberline {3.1}Inverse-variance weighted method}{15}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Egger regression}{18}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Median-based estimation}{19}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Heterogeneity test and presentation of data}{21}{subsection.3.4}
+\contentsline {section}{\numberline {4}Additional analyses}{22}{section.4}
+\contentsline {subsection}{\numberline {4.1}Multivariable Mendelian randomization}{22}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Non-linear estimation}{23}{subsection.4.2}
