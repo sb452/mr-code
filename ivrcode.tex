@@ -172,7 +172,7 @@ A reference for Fieller's theorem is \cite{buonaccorsi2005} (original reference 
 bx   = lm(x[y==0]~g[y==0])$coef[2]
 bxse = summary(lm(x[y==0]~g[y==0]))$coef[2,2]
 by   = glm(y~g, family=binomial)$coef[2]
-byse = summary(lm(y~g))$coef[2,2]
+byse = summary(glm(y~g, family=binomial))$coef[2,2]
 
 beta_ratio      = by/bx
 se_ratio_approx = byse/bx  # ...and so on.
@@ -381,7 +381,7 @@ The SMM specification is due to \cite{vansteelandt2003}.
 \section{Mendelian randomization analysis with summarized data}
 This section on Mendelian randomization methods with summarized data covers the inverse-variance weighted method that is equivalent asymptotically to the two-stage least squares method, as well as robust methods such as Egger regression, median-based estimation (including simple median and weighted median methods), a test for heterogeneity of the causal estimates from different genetic variants, and some code for the presentation of summarized data.
 
-We assume that data are available on genetic associations with the risk factor and with the outcome in the form of beta-coefficients (\textt{bx} and \textt{by}) and standard errors (\textt{bxse} and \textt{byse}).
+We assume that data are available on genetic associations with the risk factor and with the outcome in the form of beta-coefficients (\texttt{bx} and \texttt{by}) and standard errors (\texttt{bxse} and \texttt{byse}).
 
 A one-sample Mendelian randomization setting is one in which data on genetic associations with the risk factor and with the outcome are estimated in the same individuals. A two-sample Mendelian randomization setting is one in which data on genetic associations with the risk factor and with the outcome are estimated in different samples \citep{pierce2013}. Although two-sample investigations are not limited to those using summarized data, the use of summarized (particularly published) data means that genetic associations are often taken from separate sources, which may be non-overlapping \citep{burgess2014twosample}.
 
