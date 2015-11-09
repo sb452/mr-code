@@ -1,0 +1,14 @@
+\BOOKMARK [1][-]{section.1}{Introduction and notation}{}% 1
+\BOOKMARK [1][-]{section.2}{Mendelian randomization analysis with individual-level data}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Ratio of coefficients \(Wald\) method \205 single instrument}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Two-stage methods}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Likelihood-based methods}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.4}{Semi-parametric methods}{section.2}% 6
+\BOOKMARK [1][-]{section.3}{Mendelian randomization analysis with summarized data}{}% 7
+\BOOKMARK [2][-]{subsection.3.1}{Inverse-variance weighted method}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.2}{Egger regression}{section.3}% 9
+\BOOKMARK [2][-]{subsection.3.3}{Median-based estimation}{section.3}% 10
+\BOOKMARK [2][-]{subsection.3.4}{Heterogeneity test and presentation of data}{section.3}% 11
+\BOOKMARK [1][-]{section.4}{Additional analyses}{}% 12
+\BOOKMARK [2][-]{subsection.4.1}{Multivariable Mendelian randomization}{section.4}% 13
+\BOOKMARK [2][-]{subsection.4.2}{Non-linear estimation}{section.4}% 14

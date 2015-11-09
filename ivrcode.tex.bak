@@ -1,0 +1,151 @@
+\documentclass[a4paper,12pt]{article} % ??\%
+\usepackage{color}
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb, amsbsy}
+\usepackage{mathtools}
+\usepackage{chngpage}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage[square, authoryear]{natbib}
+\usepackage{listings}
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true,
+breakatwhitespace=true,
+showstringspaces=false,
+showspaces=false,
+language=R
+}
+\DeclareMathOperator{\se}{se}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\cor}{cor}
+\DeclareMathOperator{\Cor}{Cor}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\slfrac}[2]{\left.#1\middle/#2\right.}
+\addtolength{\hoffset}{-0.8cm}
+\addtolength{\textwidth}{1.6cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}
+\begin{document}
+\title{Software code in R for performing instrumental variable analyses for Mendelian randomization investigations}
+\author{maintained by Stephen Burgess}
+\maketitle
+This is a non-traditional publication to provide software code for the Mendelian randomization community in a single document. It will be updated when necessary as new methods are developed. Hopefully, this will become a collaborative resource than can be authored by the community rather than a single-author manuscript. However, Stephen Burgess retains the prerogative to exert editorial control.
+
+Currently, it only contains R code. If someone wants to write Stata code or code for any other software package, this can also be included.
+
+Contributors: 
+\begin{itemize}
+\item Stephen Burgess (sb452@medschl.cam.ac.uk)
+\end{itemize}
+
+\clearpage
+
+\tableofcontents % set depth
+
+\clearpage
+
+\section{Introduction and notation}
+\begin{lstlisting}
+### Dimensions
+N # sample size
+K # number of genetic variants
+
+### Individual-level data
+g # genetic variant(s), matrix dimension N x K
+x # risk factor/exposure, vector length N
+y # outcome, vector length N
+
+###### Summary data
+bx   # genetic associations with exposure, vector length K
+by   # genetic associations with outcome, vector length K
+bxse # standard errors of genetic associations with exposure
+byse # standard errors of genetic associations with outcome
+\end{lstlisting}
+
+\clearpage
+
+\section{Standard Mendelian randomization analysis with individual-level data}
+\subsection{Ratio (Wald) method -- single instrument (SNP or score)}
+\begin{lstlisting}
+## A. Ratio estimate (continuous outcome)
+
+bx   = lm(x~g)$coef[2]
+bxse = summary(lm(x~g))$coef[2,2]
+by   = lm(y~g)$coef[2]
+byse = summary(lm(y~g))$coef[2,2]
+
+beta_ratio = lm(y~g)$coef[2]/lm(x~g)$coef[2]
+beta_ratio = by/bx
+
+
+## B. Asymptotic standard error (poor with weak instruments)
+
+# 1. Delta method approximation (summarized data)
+
+se_ratio_approx = summary(lm(y~g))$coef[2,2]/lm(x~g)$coef[2]
+se_ratio_approx = byse/bx
+         # first order approximation
+se_ratio_approx = sqrt(summary(lm(y~g))$coef[2,2]^2/lm(x~g)$coef[2]^2 + lm(y~g)$coef[2]^2*summary(lm(x~g))$coef[2,2]^2/lm(x~g)$coef[2]^4 - 2*theta*lm(y~g)$coef[2]/lm(x~g)$coef[2]^3)
+se_ratio_approx = sqrt(byse^2/bx^2 + by^2*bxse^2/bx^4 - 2*theta*by/bx^3)
+         # second order approximation
+         # theta is correlation between numerator
+         #   and denominator in ratio estimate
+
+# 2. Two-stage least squares method for standard error (individual-level data)
+
+library(sem)
+se_tsls = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
+
+
+## C. Valid confidence intervals with weak instruments
+
+# 1. Fieller's theorem
+  f0 = by^2 - qt(0.975, N)^2 * byse^2
+  f1 = bx^2 - qt(0.975, N)^2 * bxse^2
+  f2 = by*bx
+   D = f2^2 - f0*f1
+
+  if(D>0) {
+    r1 = (f2-sqrt(D))/f1
+    r2 = (f2+sqrt(D))/f1
+if(f1>0) { cat("Confidence interval is a closed interval [a,b]: \n a=", r1, ", b=", r2, sep="")) }
+if(f1<0) { cat("Confidence interval is the union of two open intervals (-Inf, a], [b, +Inf): \n a=", r2, ", b=", r1, sep="")) }
+          }
+if(D<0|D==0) { cat("No finite confidence interval exists other than the entire real line.") }
+
+# 2. Anderson--Rubin
+
+library(ivpack)
+ivmodel = ivreg(y~x|g, x=TRUE)
+anderson.rubin.ci(ivmodel)
+         # As with Fieller's theorem, interval may be a closed interval, the union of two open intervals, or undefined
+         
+         
+## D. Binary outcome, logistic-linear model (assuming case--control data)
+
+bx   = lm(x[y==0]~g[y==0])$coef[2]
+bxse = summary(lm(x[y==0]~g[y==0]))$coef[2,2]
+by   = glm(y~g, family=binomial)$coef[2]
+byse = summary(lm(y~g))$coef[2,2]
+\end{lstlisting}
+
+Genetic associations with the risk factor are estimated in control participants only (see \cite{bowden2011}).
+\clearpage
+
+\subsection{Two-stage least squares method}
+
+\clearpage
+\makeatletter
+\renewcommand\@biblabel[1]{}
+\makeatother
+\bibliographystyle{apalike}
+\bibliography{masterrefcode}
+
+\end{document}

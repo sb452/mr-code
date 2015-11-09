@@ -1,0 +1,242 @@
+\begin{thebibliography}{}
+
+\bibitem[Anderson and Rubin, 1949]{anderson1949}
+Anderson, T. and Rubin, H. 1949.
+\newblock {Estimators of the parameters of a single equation in a complete set
+  of stochastic equations}.
+\newblock {\em Annals of Mathematical Statistics}, 21(1):570--582.
+
+\bibitem[Bowden et~al., 2015a]{bowden2015}
+Bowden, J., Davey~Smith, G., and Burgess, S. 2015a.
+\newblock {Mendelian randomization with invalid instruments: effect estimation
+  and bias detection through Egger regression}.
+\newblock {\em International Journal of Epidemiology}, 44(2):512--525.
+
+\bibitem[Bowden et~al., 2015b]{bowden2015median}
+Bowden, J., Davey~Smith, G., Haycock, P.~C., and Burgess, S. 2015b.
+\newblock {Consistent estimation in Mendelian randomization with some invalid
+  instruments using a weighted median estimator}.
+\newblock Available at https://www.academia.edu/15479132/Consistent.
+
+\bibitem[Bowden and Vansteelandt, 2011]{bowden2011}
+Bowden, J. and Vansteelandt, S. 2011.
+\newblock {Mendelian randomisation analysis of case-control data using
+  structural mean models}.
+\newblock {\em Statistics in Medicine}, 30(6):678--694.
+
+\bibitem[Buonaccorsi, 2005]{buonaccorsi2005}
+Buonaccorsi, J. 2005.
+\newblock {\em {Encyclopedia of Biostatistics}}, chapter {Fieller's theorem},
+  pages 1951--1952.
+\newblock Wiley.
+
+\bibitem[Burgess et~al., 2013]{burgess2013genepi}
+Burgess, S., Butterworth, A., and Thompson, S. 2013.
+\newblock {Mendelian randomization analysis with multiple genetic variants
+  using summarized data}.
+\newblock {\em Genetic Epidemiology}, 37(7):658--665.
+
+\bibitem[Burgess et~al., 2015a]{burgess2015beyond}
+Burgess, S., Butterworth, A.~S., and Thompson, J.~R. 2015a.
+\newblock {Beyond Mendelian randomization: how to interpret evidence of shared
+  genetic predictors}.
+\newblock {\em Journal of Clinical Epidemiology}.
+
+\bibitem[Burgess and {CHD CRP Genetics Collaboration},
+  2013]{burgess2012noncollapse}
+Burgess, S. and {CHD CRP Genetics Collaboration} 2013.
+\newblock {Identifying the odds ratio estimated by a two-stage instrumental
+  variable analysis with a logistic regression model}.
+\newblock {\em Statistics in Medicine}, 32(27):4726--4747.
+
+\bibitem[Burgess et~al., 2014]{burgess2014nonlin}
+Burgess, S., Davies, N., Thompson, S., and {EPIC-InterAct Consortium} 2014.
+\newblock {Instrumental variable analysis with a nonlinear exposure--outcome
+  relationship}.
+\newblock {\em Epidemiology}, 25(6):877--885.
+
+\bibitem[Burgess et~al., 2015b]{burgess2015scoretj}
+Burgess, S., Dudbridge, F., and Thompson, S. 2015b.
+\newblock {Combining information on multiple instrumental variables in
+  Mendelian randomization: comparison of allele score and summarized data
+  methods}.
+\newblock Available at https://www.academia.edu/15479109/Combining.
+
+\bibitem[Burgess et~al., 2015c]{burgess2014pleioajeappendix}
+Burgess, S., Dudbridge, F., and Thompson, S.~G. 2015c.
+\newblock {Re: ``Multivariable Mendelian randomization: the use of pleiotropic
+  genetic variants to estimate causal effects''}.
+\newblock {\em American Journal of Epidemiology}, 181(4):290--291.
+
+\bibitem[Burgess et~al., 2015d]{burgess2014twosample}
+Burgess, S., Scott, R., Timpson, N., Davey~Smith, G., Thompson, S., and
+  {EPIC-InterAct Consortium} 2015d.
+\newblock {Using published data in Mendelian randomization: a blueprint for
+  efficient identification of causal risk factors}.
+\newblock {\em European Journal of Epidemiology}, 30(7):543--552.
+
+\bibitem[Burgess et~al., 2015e]{burgess2015review}
+Burgess, S., Small, D.~S., and Thompson, S.~G. 2015e.
+\newblock {A review of instrumental variable estimators for Mendelian
+  randomization}.
+\newblock {\em Statistical Methods in Medical Research}.
+
+\bibitem[Burgess and Thompson, 2013]{burgess2012score}
+Burgess, S. and Thompson, S. 2013.
+\newblock {Use of allele scores as instrumental variables for Mendelian
+  randomization}.
+\newblock {\em International Journal of Epidemiology}, 42(4):1134--1144.
+
+\bibitem[Burgess and Thompson, 2015a]{burgess2014pleioaje}
+Burgess, S. and Thompson, S. 2015a.
+\newblock {Multivariable Mendelian randomization: the use of pleiotropic
+  genetic variants to estimate causal effects}.
+\newblock {\em American Journal of Epidemiology}, 181(4):251--260.
+
+\bibitem[Burgess and Thompson, 2015b]{burgess2015book}
+Burgess, S. and Thompson, S.~G. 2015b.
+\newblock {\em {Mendelian randomization: methods for using genetic variants in
+  causal estimation}}.
+\newblock Chapman \& Hall.
+
+\bibitem[Cai et~al., 2011]{cai2011}
+Cai, B., Small, D., and Ten~Have, T. 2011.
+\newblock {Two-stage instrumental variable methods for estimating the causal
+  odds ratio: Analysis of bias}.
+\newblock {\em Statistics in Medicine}, 30(15):1809--1824.
+
+\bibitem[Clarke et~al., 2011]{clarke2011}
+Clarke, P., Palmer, T., and Windmeijer, F. 2011.
+\newblock {Estimating structural mean models with multiple instrumental
+  variables using the generalised method of moments}.
+\newblock The Centre for Market and Public Organisation 11/266, Centre for
+  Market and Public Organisation, University of Bristol, UK.
+
+\bibitem[Clarke and Windmeijer, 2012]{clarke2012}
+Clarke, P.~S. and Windmeijer, F. 2012.
+\newblock {Instrumental variable estimators for binary outcomes}.
+\newblock {\em Journal of the American Statistical Association},
+  107(500):1638--1652.
+
+\bibitem[Didelez and Sheehan, 2007]{didelez2007}
+Didelez, V. and Sheehan, N. 2007.
+\newblock {Mendelian randomization as an instrumental variable approach to
+  causal inference}.
+\newblock {\em Statistical Methods in Medical Research}, 16(4):309--330.
+
+\bibitem[{Ehret, G., Munroe, P., Rice, K., et al.\ (The International
+  Consortium for Blood Pressure Genome-Wide Association Studies)},
+  2011]{ehret2011bk}
+{Ehret, G., Munroe, P., Rice, K., et al.\ (The International Consortium for
+  Blood Pressure Genome-Wide Association Studies)} 2011.
+\newblock {Genetic variants in novel pathways influence blood pressure and
+  cardiovascular disease risk}.
+\newblock {\em Nature}, 478:103--109.
+
+\bibitem[Fieller, 1954]{fieller1954}
+Fieller, E. 1954.
+\newblock {Some problems in interval estimation}.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 16(2):175--185.
+
+\bibitem[Glymour et~al., 2012]{glymour2012}
+Glymour, M., Tchetgen~Tchetgen, E., and Robins, J. 2012.
+\newblock {Credible Mendelian randomization studies: approaches for evaluating
+  the instrumental variable assumptions}.
+\newblock {\em American Journal of Epidemiology}, 175(4):332--339.
+
+\bibitem[Greco et~al., 2015]{greco2015}
+Greco, M., Minelli, C., Sheehan, N.~A., and Thompson, J.~R. 2015.
+\newblock {Detecting pleiotropy in Mendelian randomisation studies with summary
+  data and a continuous outcome}.
+\newblock {\em Statistics in Medicine}, 34(21):2926--2940.
+
+\bibitem[Greenland, 2000]{greenland2000}
+Greenland, S. 2000.
+\newblock {An introduction to instrumental variables for epidemiologists}.
+\newblock {\em International Journal of Epidemiology}, 29(4):722--729.
+
+\bibitem[Greenland et~al., 1999]{greenland1999}
+Greenland, S., Robins, J., and Pearl, J. 1999.
+\newblock {Confounding and collapsibility in causal inference}.
+\newblock {\em Statistical Science}, 14(1):29--46.
+
+\bibitem[Han, 2008]{han2008}
+Han, C. 2008.
+\newblock {Detecting invalid instruments using L1-GMM}.
+\newblock {\em Economics Letters}, 101:285--287.
+
+\bibitem[Hern{\'a}n and Robins, 2006]{hernan2006}
+Hern{\'a}n, M. and Robins, J. 2006.
+\newblock {Instruments for causal inference: an epidemiologist's dream?}
+\newblock {\em Epidemiology}, 17(4):360--372.
+
+\bibitem[Lawlor et~al., 2008]{lawlor2007}
+Lawlor, D., Harbord, R., Sterne, J., Timpson, N., and Davey~Smith, G. 2008.
+\newblock {Mendelian randomization: using genes as instruments for making
+  causal inferences in epidemiology}.
+\newblock {\em Statistics in Medicine}, 27(8):1133--1163.
+
+\bibitem[Martens et~al., 2006]{martens2006}
+Martens, E., Pestman, W., de~Boer, A., Belitser, S., and Klungel, O. 2006.
+\newblock {Instrumental variables: application and limitations}.
+\newblock {\em Epidemiology}, 17(3):260--267.
+
+\bibitem[Mikusheva, 2010]{mikusheva2010}
+Mikusheva, A. 2010.
+\newblock {Robust confidence sets in the presence of weak instruments}.
+\newblock {\em Journal of Econometrics}, 157(2):236--247.
+
+\bibitem[Nagelkerke et~al., 2000]{nagelkerke2000}
+Nagelkerke, N., Fidler, V., Bernsen, R., and Borgdorff, M. 2000.
+\newblock {Estimating treatment effects in randomized clinical trials in the
+  presence of non-compliance}.
+\newblock {\em Statistics in Medicine}, 19(14):1849--1864.
+
+\bibitem[Palmer et~al., 2011]{palmer2011b}
+Palmer, T., Sterne, J., Harbord, R., et~al. 2011.
+\newblock {Instrumental variable estimation of causal risk ratios and causal
+  odds ratios in Mendelian randomization analyses}.
+\newblock {\em American Journal of Epidemiology}, 173(12):1392--1403.
+
+\bibitem[Palmer et~al., 2008]{palmer2008b}
+Palmer, T., Thompson, J., Tobin, M., Sheehan, N., and Burton, P. 2008.
+\newblock {Adjusting for bias and unmeasured confounding in Mendelian
+  randomization studies with binary responses}.
+\newblock {\em International Journal of Epidemiology}, 37(5):1161--1168.
+
+\bibitem[Pierce and Burgess, 2013]{pierce2013}
+Pierce, B. and Burgess, S. 2013.
+\newblock {Efficient design for Mendelian randomization studies: subsample and
+  two-sample instrumental variable estimators}.
+\newblock {\em American Journal of Epidemiology}, 178(7):1177--1184.
+
+\bibitem[Terza et~al., 2008]{terza2008}
+Terza, J., Basu, A., and Rathouz, P. 2008.
+\newblock {Two-stage residual inclusion estimation: addressing endogeneity in
+  health econometric modeling}.
+\newblock {\em Journal of Health Economics}, 27(3):531--543.
+
+\bibitem[VanderWeele et~al., 2014]{vanderweele2014}
+VanderWeele, T., Tchetgen~Tchetgen, E., Cornelis, M., and Kraft, P. 2014.
+\newblock {Methodological challenges in Mendelian randomization}.
+\newblock {\em Epidemiology}, 25(3):427--435.
+
+\bibitem[Vansteelandt et~al., 2011]{vansteelandt2010}
+Vansteelandt, S., Bowden, J., Babanezhad, M., and Goetghebeur, E. 2011.
+\newblock {On instrumental variables estimation of causal odds ratios}.
+\newblock {\em Statistical Science}, 26(3):403--422.
+
+\bibitem[Vansteelandt and Goetghebeur, 2003]{vansteelandt2003}
+Vansteelandt, S. and Goetghebeur, E. 2003.
+\newblock {Causal inference with generalized structural mean models}.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)}, 65(4):817--835.
+
+\bibitem[Wald, 1940]{wald1940}
+Wald, A. 1940.
+\newblock {The fitting of straight lines if both variables are subject to
+  error}.
+\newblock {\em Annals of Mathematical Statistics}, 11(3):284--300.
+
+\end{thebibliography}

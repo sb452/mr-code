@@ -1,0 +1,646 @@
+\documentclass[a4paper,12pt]{article} % ??\%
+\usepackage{color}
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb, amsbsy}
+\usepackage{mathtools}
+\usepackage{chngpage}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage[square, authoryear]{natbib}
+\usepackage{listings}
+\usepackage[pagebackref]{hyperref}
+    \renewcommand*{\backreflastsep}{, }
+    \renewcommand*{\backreftwosep}{, }
+    \renewcommand*{\backref}[1]{}
+    \renewcommand*{\backrefalt}[4]{%
+      \ifcase #1 %
+    No citations.% use \relax if you do not want the "No citations" message
+      \or
+    (page #2).%
+      \else
+    (pages #2).%
+      \fi%
+    }
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true,
+breakatwhitespace=true,
+showstringspaces=false,
+showspaces=false,
+language=R
+}
+\DeclareMathOperator{\se}{se}
+\DeclareMathOperator{\cov}{cov}
+\DeclareMathOperator{\cor}{cor}
+\DeclareMathOperator{\Cor}{Cor}
+\DeclareMathOperator{\var}{var}
+\DeclareMathOperator{\sgn}{sgn}
+\newcommand{\slfrac}[2]{\left.#1\middle/#2\right.}
+\defcitealias{ehret2011bk}{Ehret and others, 2011}
+\defcitealias{burgess2012noncollapse}{Burgess and CCGC, 2012}
+\addtolength{\hoffset}{-0.8cm}
+\addtolength{\textwidth}{1.6cm}
+\addtolength{\voffset}{-1cm}
+\addtolength{\textheight}{2cm}
+\begin{document}
+\title{Software code for performing instrumental variable analyses for Mendelian randomization investigations}
+\author{maintained by Stephen Burgess}
+\maketitle
+This is a non-traditional publication to provide software code for the Mendelian randomization community in a single document. It will be updated when necessary as new methods are developed. Hopefully, this will become a collaborative resource than can be authored by the community rather than a single-author manuscript. However, Stephen Burgess retains the prerogative to exert editorial control.
+
+Currently, it mostly contains R code. If someone wants to write Stata code or code for any other software package, this could be included.
+
+Contributors:
+\begin{itemize}
+\item Stephen Burgess (sb452@medschl.cam.ac.uk)
+\item James Staley (jrs95@medschl.cam.ac.uk)
+\item Tom Palmer
+\item Jack Bowden
+\end{itemize}
+
+\clearpage
+
+\tableofcontents % set depth
+
+\clearpage
+
+\section{Introduction and notation}
+\begin{lstlisting}
+### Dimensions
+N # sample size
+K # number of genetic variants
+
+### Individual-level data
+g # genetic variant(s), matrix dimension N x K
+x # risk factor/exposure, vector length N
+y # outcome, vector length N
+
+###### Summarized data
+bx   # genetic associations with exposure, vector length K
+by   # genetic associations with outcome, vector length K
+bxse # standard errors of genetic associations with exposure
+byse # standard errors of genetic associations with outcome
+\end{lstlisting}
+
+This document describes methods for causal estimation using Mendelian randomization. Little attention is paid as to the assumptions for Mendelian randomization, or the interpretation of estimates from these methods. See \cite{hernan2006}, \cite{glymour2012}, \cite{vanderweele2014} and \cite{burgess2015beyond} for some critical comments.
+
+\clearpage
+
+\section{Mendelian randomization analysis with individual-level data}
+This section on standard Mendelian randomization methods with individual-level data in a single dataset is based on \cite{burgess2015review}, which in turn is based on Chapter 4 of \cite{burgess2015book}. We consider in turn the ratio of coefficients method, two-stage methods, likelihood-based methods, and semi-parametric methods.
+
+\clearpage
+
+\subsection{Ratio of coefficients (Wald) method -- single instrument}
+The ratio of coefficients method, or the Wald method is the simplest way of estimating the causal effect of the risk factor on the outcome (original paper \citep{wald1940}). The ratio method uses a single instrumental variable (IV), which can be a single SNP or an allele score (see \cite{burgess2012score} for background on allele scores).
+
+\begin{lstlisting}
+## A. Ratio estimate (continuous outcome)
+
+bx   = lm(x~g)$coef[2]
+bxse = summary(lm(x~g))$coef[2,2]
+by   = lm(y~g)$coef[2]
+byse = summary(lm(y~g))$coef[2,2]
+
+beta_ratio = by/bx
+\end{lstlisting}
+
+See \cite{greenland2000} or \cite{martens2006} for an introduction to instrumental variable methods and causal estimation, or \cite{lawlor2007} for a specific Mendelian randomization perspective.
+
+\begin{lstlisting}
+## B. Asymptotic standard error (poor with weak instruments)
+
+# 1. Delta method approximation (summarized data)
+se_ratio_approx = byse/bx
+         # first order approximation
+se_ratio_approx = sqrt(byse^2/bx^2 + by^2*bxse^2/bx^4 - 2*theta*by/bx^3)
+         # second order approximation
+         # theta is correlation between numerator
+         #   and denominator in ratio estimate
+         # theta = 0 in a two-sample setting
+
+# 2. Two-stage least squares method for standard error (individual-level data)
+library(sem)
+se_tsls = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
+
+library(ivpack)
+ivmodel = ivreg(y~x|g, x=TRUE)
+summary(ivmodel)$coef[2,2]
+\end{lstlisting}
+
+Asymptotic confidence intervals tend to be too narrow when the instrument is weak (that is, it does not explain much of the variance of the risk factor in the population), as the distribution of the ratio estimator is non-normal with heavy tails. Hence methods have been developed that provide confidence intervals without making the assumption that the ratio estimator has a normal distribution.
+
+\begin{lstlisting}
+## C. Valid confidence intervals with weak instruments
+
+# 1. Fieller's theorem
+  bx   = lm(x~g)$coef[2]
+  bxse = summary(lm(x~g))$coef[2,2]
+  by   = lm(y~g)$coef[2]
+  byse = summary(lm(y~g))$coef[2,2]
+
+  f0 = by^2 - qt(0.975, N)^2 * byse^2
+  f1 = bx^2 - qt(0.975, N)^2 * bxse^2
+  f2 = by*bx
+   D = f2^2 - f0*f1
+
+  if(D>0) {
+    r1 = (f2-sqrt(D))/f1
+    r2 = (f2+sqrt(D))/f1
+if(f1>0) { cat("Confidence interval is a closed interval [a,b]: \n a=", r1, ", b=", r2, sep="") }
+if(f1<0) { cat("Confidence interval is the union of two open intervals (-Inf, a], [b, +Inf): \n a=", r2, ", b=", r1, sep="") }
+          }
+if(D<0|D==0) { cat("No finite confidence interval exists other than the entire real line.") }
+
+# 2. Anderson--Rubin
+library(ivpack)
+ivmodel = ivreg(y~x|g, x=TRUE)
+anderson.rubin.ci(ivmodel)
+         # As with Fieller's theorem, interval may be a closed interval, the union of two open intervals, or undefined
+\end{lstlisting}
+
+A reference for Fieller's theorem is \cite{buonaccorsi2005} (original reference is \cite{fieller1954}, a web-based tool is available at \url{https://sb452.shinyapps.io/fieller}. A reference for the Anderson--Rubin method is \cite{mikusheva2010} (original reference is \cite{anderson1949}).
+
+\begin{lstlisting}
+## D. Binary outcome, logistic-linear model (assuming case--control data)
+
+bx   = lm(x[y==0]~g[y==0])$coef[2]
+bxse = summary(lm(x[y==0]~g[y==0]))$coef[2,2]
+by   = glm(y~g, family=binomial)$coef[2]
+byse = summary(glm(y~g, family=binomial))$coef[2,2]
+
+beta_ratio      = by/bx
+se_ratio_approx = byse/bx  # ...and so on.
+\end{lstlisting}
+
+With a binary outcome in a case--control setting, genetic associations with the risk factor should be estimated in control participants only (see \cite{didelez2007}). This is for three main reasons: to avoid reverse causation, to avoid biases due to outcome-dependent sampling, and because the controls are a more representative sample of the population as a whole. If pre-disease measurements of the risk factor are available for cases, and the prevalence of the disease is available (such as in a nested case--control setting), then associations may be estimated in the case--control provided that participants are weighted so that the case-control sample represents the underlying population \citep{bowden2011}.
+
+There are some technical issues relating to the ratio estimate with a binary outcome and a logistic regression model due to the non-collapsibility of odds ratios \citep{greenland1999}, but it is a consistent estimator under the null \citep{vansteelandt2010}. Some further references for instrumental variable analysis with a binary outcome are \cite{palmer2011b} and \cite{clarke2012}.
+
+Much of the code for a continuous outcome, including Fieller's theorem, can be used with a binary outcome.
+
+\clearpage
+
+\subsection{Two-stage methods}
+Two-stage methods are often implemented in practice in a single step, but can be estimated using two separate regression models. The first-stage model consists of a regression of the risk factor on the instrumental variables. The second-stage model consists of a regression of the outcome on the risk factor. If the model is calculated using these two stages (a sequential regression approach), then standard errors from the second-stage regression model will be underestimated as they will fail to account for uncertainty in the first-stage regression. However, uncertainty in the first-stage model may be small and can often be neglected.
+
+\begin{lstlisting}
+## A. Continuous outcome -- two-stage least squares
+
+library(sem)
+beta_tsls = tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$coef[1]
+se_tsls   = sqrt(tsls(y, cbind(x, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
+
+library(ivpack)
+ivmodel = ivreg(y~x|g, x=TRUE)
+summary(ivmodel)
+beta_tsls = ivreg(y~x|g, x=TRUE)$coef[2]
+se_tsls   = summary(ivreg(y~x|g, x=TRUE))$coef[2,2]
+\end{lstlisting}
+
+The same point estimate (although not the standard error) can be obtained using sequential regression:
+
+\begin{lstlisting}
+beta_seqreg_tsls = lm(y~lm(x~g)$fitted)$coef[2]
+\end{lstlisting}
+
+\begin{lstlisting}
+## B. Binary outcome, logistic-linear model (assuming case--control data)
+
+# 1. Two-stage predictor substitution.
+g0        = g[y==0]
+tsps.glm  = glm(y~predict(lm(x[y==0]~g0), newdata=list(g0=g)), family=binomial)
+beta_tsps = tsps.glm$coef[2]
+se_tsps   = summary(tsps.glm)$coef[2,2]
+\end{lstlisting}
+
+This is also known as two-stage predictor substitution as the fitted values from the first-stage regression are plugged into the second-stage regression (as in sequential regression) \citep{cai2011}. The estimand with a logistic regression model in the second stage is a population-averaged causal odds ratio \citepalias{burgess2012noncollapse}. This represents the ratio in odds for a intervention in the population distribution of the risk factor averaged over the population. It differs from the subject-specific (or individual) odds ratio even if this is constant due to non-collapsibility. It still provides a valid test of the causal null hypothesis, and is it consistent under the null \citep{vansteelandt2010}.
+
+\begin{lstlisting}
+# 2. Two-stage residual inclusion.
+g0        = g[y==0]
+pred      = predict(lm(x[y==0]~g0), newdata=list(g0=g))
+resid     = x-predict(lm(x[y==0]~g0), newdata=list(g0=g))
+tsri.glm  = glm(y~pred+resid, family=binomial)
+beta_tsri = tsri.glm$coef[2]
+se_tsri = summary(tsps.glm)$coef[2,2]
+\end{lstlisting}
+
+An alternative approach is two-stage residual inclusion, in which the fitted values and residuals from the first-stage regression are both included in the second-stage regression model \citep{terza2008}. This is also known as the control function approach \citep{nagelkerke2000}. Inclusion of the residual term means that estimates from the second-stage regression model are closer to subject-specific odds ratios \citep{palmer2008b}. However, there is no good reason why this adjustment should be made, and estimates from the two-stage residual inclusion method may even be biased under the null \citep{vansteelandt2010}. Hence the two-stage predictor substitution method should be preferred in practice.
+
+\clearpage
+
+\subsection{Likelihood-based methods}
+Not aware of a generic implementation of likelihood-based methods (such as limited information maximum likelihood, LIML) in R. The LIML approach can be implemented in Stata:
+\begin{lstlisting}
+ivreg2 y (x = g1), liml         * for one variant
+ivreg2 y (x = g1 g2 g3), liml   * for multiple variants.
+\end{lstlisting}
+
+\clearpage
+
+\subsection{Semi-parametric methods}
+Semi-parametric methods are those that make some parametric assumptions, but fewer assumptions than a fully-parametric method. For instance, the structural model relating the risk factor to the outcome may be specified (for instance, as a linear model), but the distribution of the errors in this model are not specified. The category of semi-parametric methods includes the generalized method of moments (GMM) and structural mean models (SMM) that are fitted using g-estimation.
+
+In the linear and multiplicative (log-linear) cases, the two approaches lead to the same estimating equations \citep{clarke2011}. In the logistic case, they differ somewhat. This code is adapted from \cite{clarke2011}.
+
+\begin{lstlisting}
+## A. Continuous outcome -- GMM and SMM approaches
+
+# 1. Compact format
+library(gmm)    # note that the gmm package also have a function called tsls
+                # this document uses the sem package version of that command
+asmm <- gmm(y ~ x, x=g)
+print(cbind(coef(asmm),confint(asmm)))
+
+# 2. Function format (assuming 2 genetic variables: g1 and g2)
+asmmMoments <- function(theta,x){
+ Y <- x[,1]
+ X <- x[,2]
+ Z1 <- x[,3]
+ Z2 <- x[,4]
+ # moments
+ m1 <- (Y - theta[1] - theta[2]*X)
+ m2 <- (Y - theta[1] - theta[2]*X)*Z1
+ m3 <- (Y - theta[1] - theta[2]*X)*Z2
+ return(cbind(m1,m2,m3))
+}
+
+four <- cbind(y,x,g1,g2)
+asmm2 <- gmm(asmmMoments, x=four, t0=c(0,0))
+print(cbind(coef(asmm2),confint(asmm2))) # Theta[2] is causal estimate
+
+# 3. Stata code
+gmm (y - {ey0} - x*{psi}), instruments(g1 g2)
+
+ivregress gmm y (x = g1 g2)
+
+ivreg2 y (x = g1 g2), gmm
+\end{lstlisting}
+
+
+\begin{lstlisting}
+## B. Binary outcome, multiplicative (log-linear) model -- GMM and SMM approaches
+
+# 1. R code
+msmmMoments <- function(theta,x){
+ Y <- x[,1]
+ X <- x[,2]
+ Z1 <- x[,3]
+ Z2 <- x[,4]
+ m1 <- (Y*exp(-theta[1] - X*theta[2]) - 1)
+ m2 <- (Y*exp(-theta[1] - X*theta[2]) - 1)*Z1
+ m3 <- (Y*exp(-theta[1] - X*theta[2]) - 1)*Z2
+ return(cbind(m1,m2,m3))
+}
+four = cbind(y,x,g1,g2)
+msmm <- gmm(msmmMoments, x=four, t0=c(0,0))
+print(cbind(coef(msmm), confint(msmm)))
+
+# 2. Stata code
+gmm (y*exp(-{ey0} - x*{psi}) - 1), instruments(g1 g2)
+\end{lstlisting}
+
+\begin{lstlisting}
+## C. Binary outcome, log-logistic model
+
+# 1. SMM specification - R code
+four <- cbind(y,x,g1,g2)
+
+am <- glm(y ~ x*g1 + x*g2, family=binomial)
+amfit <- coef(am)
+linpred <- qlogis(fitted.values(am))
+
+smMoments <- function(theta,x){
+ # extract variables from x
+ X <- x[,2]
+ Z1 <- x[,3]
+ Z2 <- x[,4]
+ # moments
+ s1 <- (plogis(linpred - theta[2]*X) - theta[1])
+ s2 <- (plogis(linpred - theta[2]*X) - theta[1])*Z1
+ s3 <- (plogis(linpred - theta[2]*X) - theta[1])*Z2
+ return(cbind(s1,s2,s3))
+}
+sm <- gmm(smMoments, x=four, t0=c(0,0))
+smfit <- coef(sm)
+lsmmMoments <- function(theta,x){
+ # extract variables from x
+ Y <- x[,1]
+ X <- x[,2]
+ Z1 <- x[,3]
+ Z2 <- x[,4]
+ XZ1 <- X*Z1
+ XZ2 <- X*Z2
+ # association model moments
+ linpred <- theta[1] + theta[2]*X + theta[3]*Z1 + theta[4]*Z2 + theta[5]*XZ1 + theta[6]*XZ2
+ a1 <- (Y - plogis(linpred))
+ a2 <- (Y - plogis(linpred))*X
+ a3 <- (Y - plogis(linpred))*Z1
+ a4 <- (Y - plogis(linpred))*Z2
+ a5 <- (Y - plogis(linpred))*XZ1
+ a6 <- (Y - plogis(linpred))*XZ2
+ # structural model moments
+ s1 <- (plogis(linpred - theta[8]*X) - theta[7])
+ s2 <- (plogis(linpred - theta[8]*X) - theta[7])*Z1
+ s3 <- (plogis(linpred - theta[8]*X) - theta[7])*Z2
+ return(cbind(a1,a2,a3,a4,a5,a6,s1,s2,s3))
+}
+lsmm <- gmm(lsmmMoments, x=four, t0=c(amfit,smfit))
+print(summary(lsmm))
+print(cbind(coef(lsmm), confint(lsmm)))
+
+# 2. SMM specification - Stata code
+logit y x g1 g2 xg1 xg2
+matrix from = e(b)
+predict xblog, xb
+gmm (invlogit(xblog - x*{psi}) - {ey0}), instruments(g1 g2) twostep
+
+matrix from = (from,e(b))
+* SEs incorrect here
+gmm (y - invlogit({logit:x g1 g2 xg1 xg2} + {logitconst})) ///
+(invlogit({logit:} + {logitconst} - x*{psi}) - {ey0}), ///
+instruments(1:x g1 g2 xg1 xg2) instruments(2:g1 g2) ///
+winitial(unadjusted, independent) from(from)
+
+# 3. GMM specification - Stata code
+gmm (y*invlogit(-{ey0} - x*{psi}) - 1), instruments(g1 g2)
+
+gmm (y - invlogit({beta0} + x*{beta1})), instruments(g1 g2)
+\end{lstlisting}
+
+The SMM specification is due to \cite{vansteelandt2003}.
+
+\clearpage
+
+\section{Mendelian randomization analysis with summarized data}
+This section on Mendelian randomization methods with summarized data covers the inverse-variance weighted method that is equivalent asymptotically to the two-stage least squares method, as well as robust methods such as Egger regression, median-based estimation (including simple median and weighted median methods), a test for heterogeneity of the causal estimates from different genetic variants, and some code for the presentation of summarized data.
+
+We assume that data are available on genetic associations with the risk factor and with the outcome in the form of beta-coefficients (\texttt{bx} and \texttt{by}) and standard errors (\texttt{bxse} and \texttt{byse}).
+
+A one-sample Mendelian randomization setting is one in which data on genetic associations with the risk factor and with the outcome are estimated in the same individuals. A two-sample Mendelian randomization setting is one in which data on genetic associations with the risk factor and with the outcome are estimated in different samples \citep{pierce2013}. Although two-sample investigations are not limited to those using summarized data, the use of summarized (particularly published) data means that genetic associations are often taken from separate sources, which may be non-overlapping \citep{burgess2014twosample}.
+
+\clearpage
+
+\subsection{Inverse-variance weighted method}
+The inverse-variance weighted method can be motivated in several ways \citep{burgess2013genepi}. 1) It is a weighted mean of the ratio causal estimates from multiple genetic variants, where the weights are the inverse-variance weights also used in meta-analysis. 2) It is asymptotically equivalent to a two-stage least squares analysis (and so can be motivated using an allele score). 3) It is the coefficient from a weighted linear regression of the gene--outcome coefficients on the gene-risk factor coefficients (intercept is constrained to equal zero).
+
+We initially present the inverse-variance weighted estimate and standard error as it was initially proposed (using a fixed-effect assumption -- that all the genetic variants identify the same causal effect, and using a simple formulation of the variances used as weights) \citepalias{ehret2011bk}. We then give random-effects estimates, as well as a correction to the variances that should be used in a one-sample setting, particularly when the instruments are weak. We initially assume that genetic variants are uncorrelated (not in linkage disequilibrium).
+
+\begin{lstlisting}
+## A. Genetic variants uncorrelated, no heterogeneity -- fixed-effect model
+
+# 1. Gene score formula:
+betafirst.fixed = sum(bx*by/byse^2)/sum(bx^2/byse^2)
+  sefirst.fixed = sqrt(1/sum(bx^2/byse^2))
+
+# 2. Meta-analysis:
+library(meta)
+betafirst.fixed = metagen(by/bx, byse/bx)$TE.fixed
+  sefirst.fixed = metagen(by/bx, byse/bx)$seTE.fixed
+
+# 3. Weighted linear regression:
+betafirst.fixed = lm(by~bx-1, weights=byse^-2)$coef[1]
+  sefirst.fixed = summary(lm(by~bx-1, weights=byse^-2))$coef[1,2]/summary(lm(by~bx-1, weights=byse^-2))$sigma
+\end{lstlisting}
+
+\begin{lstlisting}
+## B. Genetic variants uncorrelated, heterogeneity -- random-effects model
+#     (the use of a random-effects model is preferred,
+#       particularly if there is any chance of heterogeneity
+#       in the estimates obtained using different genetic variants)
+
+# 1. Additive random-effects model
+betafirst.addran = metagen(by/bx, abs(byse/bx))$TE.random
+  sefirst.addran = metagen(by/bx, abs(byse/bx))$seTE.random
+
+# 2. Multiplicative random-effects model
+       reg.first = summary(lm(by~bx-1, weights=byse^-2))
+betafirst.mulran = reg.first$coef[1]
+  sefirst.mulran = reg.first$coef[1,2]/min(reg.first$sigma,1)
+\end{lstlisting}
+
+A random-effects model (either additive or multiplicative) should be used for combining causal estimates from multiple genetic variants. If there is no heterogeneity, then there is no loss, as the estimate from a random-effects analysis equals that from a fixed-effect analysis. If there is heterogeneity, then the estimate from a fixed-effect analysis will be too precise.
+
+\begin{lstlisting}
+## C. Genetic variants uncorrelated, heterogeneity -- correction for one-sample setting or sample overlap
+
+# 1. Additive random-effects model
+betasecond.addran = metagen(by/bx, sqrt(byse^2/bx^2+by^2*bxse^2/bx^4))$TE.random
+  sesecond.addran = metagen(by/bx, sqrt(byse^2/bx^2+by^2*bxse^2/bx^4))$seTE.random
+
+# 2. Multiplicative random-effects model
+       reg.second = summary(lm(by~bx-1, weights=(byse^2+by^2*bxse^2/bx^2)^-1))
+
+betasecond.mulran = reg.second$coef[1]
+  sesecond.mulran = reg.second$coef[1,2]/min(reg.second$sigma,1)
+
+# 3. Incorporating correlation term -- additive random-effects model
+theta = 0.1                             # correlation term
+
+betasecond.theta.addran = metagen(by/bx,
+ sqrt(byse^2/bx^2+by^2*bxse^2/bx^4
+ -2*theta*by*bxse*byse/bx^3))$TE.random
+
+  sesecond.theta.addran = metagen(by/bx,
+ sqrt(byse^2/bx^2+by^2*bxse^2/bx^4
+ -2*theta*by*bxse*byse/bx^3))$seTE.random
+
+# 4. Incorporating correlation term -- multiplicative random-effects model
+theta = 0.1                             # correlation term
+
+reg.second.theta = summary(lm(by~bx-1,
+ weights=(byse^2+by^2*bxse^2/bx^2-2*theta*by*bxse*byse/bx)^-1))
+
+betasecond.theta.mulran = reg.second.theta$coef[1]
+  sesecond.theta.mulran = reg.second.theta$coef[1,2]/min(reg.second.theta$sigma,1)
+\end{lstlisting}
+
+When the genetic associations with the risk factor and with the outcome are estimated in non-overlapping datasets (a two-sample setting), the estimates in section B give reasonable coverage rates and those in section C give overcoverage (confidence intervals are too wide) [unpublished]. However, when the datasets overlap (as is often the case in practice for major genetic consortia), the coverage of estimates in section B is below nominal levels and Type 1 error rates are too frequent. This is particularly true when the genetic variants are weak. In the one-sample or overlapping sample setting, estimates in section C have much better coverage properties.
+
+The correlation term $\theta$ is the correlation between the genetic associations with the risk factor and the genetic associations with the outcome. This is zero in a two-sample setting, and approximately the same as the correlation between the risk factor and the outcome in a one-sample setting.
+
+\begin{lstlisting}
+## D. Genetic variants correlated
+
+Omega = byse%o%byse*rho
+betafirst.fixed.correl = solve(t(bx)%*%solve(Omega)%*%bx)*t(bx)%*%solve(Omega)%*%by
+sefirst.fixed.correl   = sqrt(solve(t(bx)%*%solve(Omega)%*%bx))
+\end{lstlisting}
+
+When genetic variants are correlated, the causal effect can be estimated using generalized weighted linear regression \citep{burgess2015scoretj}. The matrix \texttt{rho} is the matrix of correlations between the genetic variants. This method can give odd results, particularly if the genetic variants are highly correlated, or the correlations are misspecified.
+
+\clearpage
+
+\subsection{Egger regression}
+Egger regression is an extension to the inverse-variance weighted method to allow genetic variants to have pleiotropic (direct) effects on the outcome that do not operate via the risk factor \citep{bowden2015}. The genetic variants are allowed to violate the instrumental variable assumptions, and specifically the exclusion restriction assumption. As the genetic variants are not instrumental variables, the assumption of homogeneity of causal estimates from each genetic variant can no longer be made.
+
+In Egger regression, a weighted regression of the gene--outcome coefficients on the gene-risk factor coefficients is performed, except that the intercept term is estimated as part of the model. If the estimated intercept differs from zero, this provides evidence that there is directional (or unbalanced) pleiotropy. This means that the pleiotropic effects of the genetic variants do not average to have mean zero.
+
+Under an additional assumption (the InSIDE -- instrument strength independent of direct effect -- assumption), the slope coefficient from Egger regression is a consistent estimate of the causal effect even the presence of directional pleiotropy. The InSIDE assumption states that the distribution of pleiotropic effects across the genetic variants is independent of the distribution of genetic associations with the risk factor. For a finite number of genetic variants, the estimate is consistent if the direct effects are uncorrelated with the associations with the risk factor (the instrument strength).
+
+\begin{lstlisting}
+## A. Genetic variants uncorrelated, multiplicative random-effects model
+
+# 1. Test for directional pleiotropy
+inter_Egger   = summary(lm(by~bx, weights=byse^-2))$coef[1,1]
+seinter_Egger = summary(lm(by~bx, weights=byse^-2))$coef[1,2]/
+            min(summary(lm(by~bx, weights=byse^-2))$sigma, 1)
+
+# 2. Estimate of causal effect (under InSIDE assumption)
+beta_Egger    = summary(lm(by~bx, weights=byse^-2))$coef[2,1]
+sebeta_Egger  = summary(lm(by~bx, weights=byse^-2))$coef[2,2]/
+            min(summary(lm(by~bx, weights=byse^-2))$sigma, 1)
+\end{lstlisting}
+
+\clearpage
+
+\subsection{Median-based estimation}
+The inverse-variance weighted estimate is a weighted mean of the estimates from each individual genetic variant. This has a 0\% breakdown limit, as if one of the genetic variants is not a valid instrumental variable (and so the estimate from that variant is biased), then the inverse-variance weighted estimate will be inconsistent. On the contrary, the median has a 50\% breakdown limit, and so the median of the estimates from each individual genetic variant will be a consistent estimate of the causal effect even if up to 50\% of the genetic variants are not valid instrumental variables \citep{han2008}.
+
+Alternatively, a weighted median can be calculated by considering as the median of a probability distribution in which the probability of each causal estimate is proportional to a given weight. In particular, we use the same inverse-variance weights as in the inverse-variance weighted method. The consistency condition is now that genetic variants representing at least 50\% of the weight are valid instrumental variables \citep{bowden2015median}.
+
+\begin{lstlisting}
+## A. Median-based estimation
+
+weighted.median <- function(betaIV.in, weights.in) {
+  betaIV.order  = betaIV.in[order(betaIV.in)]
+  weights.order = weights.in[order(betaIV.in)]
+  weights.sum   = cumsum(weights.order)-0.5*weights.order
+  weights.sum   = weights.sum/sum(weights.order)
+        below   = max(which(weights.sum<0.5))
+  weighted.est  = betaIV.order[below] + (betaIV.order[below+1]-betaIV.order[below])*
+                  (0.5-weights.sum[below])/(weights.sum[below+1]-weights.sum[below])
+  return(weighted.est) }
+
+weighted.median.boot = function(betaXG.in, betaYG.in, sebetaXG.in, sebetaYG.in, weights.in){
+med = NULL
+for(i in 1:1000){
+ betaXG.boot = rnorm(length(betaXG.in), mean=betaXG.in, sd=sebetaXG.in)
+ betaYG.boot = rnorm(length(betaYG.in), mean=betaYG.in, sd=sebetaYG.in)
+ betaIV.boot  = betaYG.boot/betaXG.boot
+ med[i] = weighted.median(betaIV.boot, weights.in)
+ }
+return(sd(med)) }
+
+# 1. Simple median estimator
+betaIV             = by/bx
+weights            = rep(1, length(bx))
+betaSIMPLEMED      = weighted.median(betaIV, weights)
+sebetaSIMPLEMED    = weighted.median.boot(bx, by, bxse, byse, weights)
+
+# 2. Weighted median estimator
+betaIV             = by/bx
+weights            = (byse/bx)^-2
+betaWEIGHTEDMED    = weighted.median(betaIV, weights)
+sebetaWEIGHTEDMED  = weighted.median.boot(bx, by, bxse, byse, weights)
+\end{lstlisting}
+
+The standard error is estimated using a parametric bootstrap.
+
+\clearpage
+
+\subsection{Heterogeneity test and presentation of data}
+A heterogeneity test can be performed using Cochran's Q statistic \citep{greco2015}. A significant test statistic corresponds to rejection of the null hypothesis that all genetic variants identify the same causal effect. Substantial heterogeneity is an indication of potential violation of the instrumental variable assumptions for one or more genetic variants.
+
+\begin{lstlisting}
+metagen(by/bx, byse/bx)
+p.hetero = 1-pchisq(metagen(by/bx, byse/bx)$Q,
+   metagen(by/bx, byse/bx)$df.Q)
+\end{lstlisting}
+
+Heterogeneity and directional pleiotropy can also be detects visual using a scatter plot or a funnel plot based on the associations of the individual genetic variants.
+
+\begin{lstlisting}
+# 1. Scatter plot (gene--outcome associations against gene--risk factor associations)
+#                 (lines represent 95\% confidence intervals)
+by = by*sign(bx); bx = abs(bx)
+plot(bx, by, xlim=c(min(bx-2*bxse, 0), max(bx+2*bxse)),
+ ylim=c(min(by-2*byse, 0), max(by+2*byse, 0)))
+for (j in 1:length(bx)) {
+ lines(c(bx[j],bx[j]), c(by[j]-1.96*byse[j], by[j]+1.96*byse[j]))
+ lines(c(bx[j]-1.96*bxse[j],bx[j]+1.96*bxse[j]), c(by[j], by[j]))
+ }
+abline(h=0, lwd=1); abline(v=0, lwd=1)
+
+# 2. Funnel plot (measure of precision of IV estimate -- specifically the reciprocal of the standard error
+#                 versus the IV estimate)
+plot(by/bx, bx/byse, xlim=c(min((by-2*byse)/bx),
+  max((by+2*byse)/bx)), ylim=c(0, max(bx/byse)))
+for (j in 1:length(bx)) {
+ lines(c((by[j]-1.96*byse[j])/bx[j],  (by[j]+1.96*byse[j])/bx[j]),
+  c(bx[j]/byse[j], bx[j]/byse[j]))
+ }
+abline(h=0, lwd=1); abline(v=0, lwd=1)
+\end{lstlisting}
+
+\clearpage
+
+\section{Additional analyses}
+\subsection{Multivariable Mendelian randomization}
+In multivariable Mendelian randomization, genetic variants are allowed to affect more than one risk factor, but they have to satisfy the instrumental variable assumptions for the set of risk factors. So, genetic variants are allowed to have pleiotropic effects, provided that the pleiotropic effects are limited to the set of risk factors under investigation \citep{burgess2014pleioaje}. The effects of each of the risk factors are all estimated in one model.
+
+With individual-level data, a two-stage method can be used, except that the first-stage model is now a multivariate regression model with each of the risk factors as a dependent variable. With summarized data, an extension to the inverse-variance weighted method can be performed. Instead of a univariable regression model, the gene--outcome associations can be regressed on all the gene--risk factor associations simultaneously in a multivariable regression model.
+
+\begin{lstlisting}
+## A. Individual-level data -- assuming two risk factors
+
+library(sem)
+beta1_tsls = tsls(y, cbind(x1, x2, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$coef[1]
+beta2_tsls = tsls(y, cbind(x1, x2, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$coef[2]
+se1_tsls   = sqrt(tsls(y, cbind(x1, x2, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[1,1])
+se2_tsls   = sqrt(tsls(y, cbind(x1, x2, rep(1,N)), cbind(g, rep(1,N)), w=rep(1,N))$V[2,2])
+
+library(ivpack)
+ivmodel = ivreg(y~cbind(x1,x2)|g, x=TRUE)
+summary(ivmodel)
+\end{lstlisting}
+
+With summarized data, the inverse-variance weighted method can be used, except that instead of a univariate weighted linear regression model, a multivariate weighted linear regression model can be employed \citep{burgess2014pleioajeappendix}.
+
+\begin{lstlisting}
+## B. Summarized data
+
+beta_multivar = summary(lm(by~bx1+bx2-1, weights=byse^-2))$coef[1,1]
+se_multivar   = summary(lm(by~bx1+bx2-1, weights=byse^-2))$coef[1,2]/
+            min(summary(lm(by~bx1+bx2-1, weights=byse^-2))$sigma, 1)
+\end{lstlisting}
+
+\clearpage
+
+\subsection{Non-linear estimation}
+If the relationship between the risk factor and the outcome is non-linear, then an estimate that ignores this non-linearity can be interpreted as a population-averaged effect of an intervention in the distribution of the risk factor in the population. Alternatively, separate causal estimates can be obtained in strata of the population. These estimates can be used to determine the shape of the risk factor--outcome relationship. However, if the risk factor is stratified on directly, then associations between the genetic variants and the outcome will be distorted, as the risk factor is on the causal pathway from the genetic variants to the outcome \citep{burgess2014nonlin}.
+
+A solution to this is to first regress the risk factor on the genetic variants, and then to stratify on the residuals from this regression. The residual represents the non-genetic component of the risk factor, or the expected value of the exposure if the genetic variants took the value zero. The causal estimate (the localized average causal effect) can then be obtained in each stratum. The assumption is made that the effect of the genetic variants on the risk factor is equal in all individuals.
+
+\begin{lstlisting}
+## A. Estimation of localized average causal effect in 5 strata
+
+x0 = lm(x~g)$residuals
+strata = (order(x0)>N/5)+(order(x0)>2*N/5)+(order(x0)>3*N/5)+(order(x0)>4*N/5)
+
+beta_lace = NULL; se_lace = NULL
+for (j in 0:4) {
+ beta_lace[j+1] = lm(y[strata==j]~g[strata==j])$coef[2]/lm(x~g)$coef[2]
+   se_lace[j+1] = summary(lm(y[strata==j]~g[strata==j]))$coef[2,2]/lm(x~g)$coef[2]
+               }
+\end{lstlisting}
+
+
+\clearpage
+
+
+
+
+\makeatletter
+\renewcommand\@biblabel[1]{}
+\makeatother
+\bibliographystyle{apalike}
+\bibliography{masterrefcode}
+
+\end{document}
